@@ -24,17 +24,16 @@ exports.hello = functions.https.onRequest((request, response) => {
     }
 })
 
+
 exports.latest = functions.https.onRequest((req, response) => {
     const query = db.collection('messages')
                     .orderBy('timestamp', 'desc')
                     .limit(1)
 
-    query.get()
-    .then(snapshot => {
-        snapshot.forEach(doc => {
-            console.log(doc.data())        
-            response.status(200).send(doc.data().text)
-        })
+    basic.getFromQuery(query)
+    .then(data => {
+        console.log(data)        
+        response.status(200).send(data)
     })
 })
 
