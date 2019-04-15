@@ -55,6 +55,31 @@ exports.addMsg = functions.https.onRequest((req, response) => {
     }
 })
 
+// reqでユーザ名を指定
+// 指定したユーザ名が流したtextを取得する
+// ただし、リクエストのユーザ名はASCIIコードではなくパーセントエンコーディング(%がついた16進数)
+exports.testWhere = functions.https.onRequest((req, response) => {
+    switch(req.method) {
+        case 'GET': 
+            if (req.query.name === undefined) {
+                response.status(500).send({ error: 'Invalid parameters'})
+                return 
+            }
+            console.log(req.query.name)
+            const query = db.collection('messages')
+                            .where("name", "==", req.query.name)
+            basic.getFromQuery(query)
+            .then(data => {
+                console.log(data)        
+                response.status(200).send(data)
+            })
+        break
+        default: 
+            response.status(400).send({ error: 'Something blew up!'})
+        break
+    }
+})
+
 exports.addWelcomeMessages = functions.auth.user().onCreate(async (user) => {
     console.log('A new user signed in for the first time.')
     const fullName = user.displayName || 'Anonumous'
