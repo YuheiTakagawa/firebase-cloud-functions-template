@@ -20,3 +20,13 @@ exports.getFromQuery = function(query) {
         return datas
     })
 }
+
+// table: Firestoreのcollectionまでが選択された状態が欲しい
+// firebase.firestore.collection('<target table>')
+// data: collectionに格納するデータ構造体
+exports.saveQuery = function(table, data) {
+    return table.add(data)
+    .catch(function(error) {
+        console.error('Error writing new message to Firebase Database', error)
+    })
+}

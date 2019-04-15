@@ -37,6 +37,24 @@ exports.latest = functions.https.onRequest((req, response) => {
     })
 })
 
+exports.addMsg = functions.https.onRequest((req, response) => {
+    switch (req.method) {
+        case 'POST':
+            basic.saveQuery(db.collection('messages'), {
+                // name: "test",
+                text: req.body.name,
+                // profilePicUrl: "",
+                timestamp: admin.firestore.FieldValue.serverTimestamp()
+            })
+            msg = basic.getMsg(req.body)
+            response.status(200).send(msg)
+        break
+        default:
+            response.status(400).send({ error: 'Something blew up!'})
+        break
+    }
+})
+
 exports.addWelcomeMessages = functions.auth.user().onCreate(async (user) => {
     console.log('A new user signed in for the first time.')
     const fullName = user.displayName || 'Anonumous'
