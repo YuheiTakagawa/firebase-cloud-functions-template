@@ -119,3 +119,15 @@ exports.saveFile = functions.https.onRequest((req, response) => {
         break
     }
 })
+
+// 外部APIを使う場合、無料枠のhostingだとアクセスできない
+// ローカルなら利用できる
+const fetch = require('node-fetch')
+exports.accessAPI = functions.https.onRequest((req, response) => {
+    fetch('https://jsonplaceholder.typicode.com/todos/1')
+    .then(res => res.json())
+    .then(json => {
+        console.log(json)
+        response.status(200).send(json)
+   })
+})
