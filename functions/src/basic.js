@@ -30,3 +30,20 @@ exports.saveQuery = function(table, data) {
         console.error('Error writing new message to Firebase Database', error)
     })
 }
+
+// storage内のpathにdataを書き込む
+// returnではurlを返すPromiseを返すがaccessにはtokenが必要なのでそのままではアクセスできない
+exports.saveStorage = function(storage, path, data) {
+    const file = storage.file(path)
+    return file.save(data).then(() => {
+        return 'https://firebasestorage.googleapis.com/v0/b/'+storage.name+'/o/'+file.name
+    })
+}
+
+// storage.file.saveで保存した場合は、バイナリとして格納されるからutf-8への変換が必要
+exports.getStorage = function(storage, path) {
+    const file = storage.file(path)
+    return file.download().then((data) => {
+        console.log(data.toString('utf-8'))
+    })
+}

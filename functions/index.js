@@ -8,6 +8,8 @@ const db = admin.firestore()
 const settings = {timestampsInSnapshots: true}
 db.settings(settings)
 
+const storage = admin.storage()
+
 exports.hello = functions.https.onRequest((request, response) => {
     switch (request.method) {
         case 'GET':
@@ -91,4 +93,29 @@ exports.addWelcomeMessages = functions.auth.user().onCreate(async (user) => {
         timestamp: admin.firestore.FieldValue.serverTimestamp(),
     })
     console.log('Welcome message written to datadabse.')
+})
+
+// CloudFunctionsではstorageの参照の作り方が違う
+// storage.bucket().file()で作成する
+// storage.ref().child()とはまた違う
+// リクエストパラメータにはpathとtextを入れる
+exports.saveFile = functions.https.onRequest((req, response) => {
+    switch(req.method){
+        case 'POST':
+            if (req.body.path === undefined || req.body.text === undefined){
+                response.status(500).send({ error: 'Invalid params'})
+                return 
+            }
+            storageRef = storage.bucket()
+            basic.saveStorage(storageRef, req.body.path, req.body.text)
+            .then(data => {
+                response.status(200).send(data)
+            }).then(() => {
+                basic.getStorage(storageRef, req.body.path)
+            })
+        break
+        default:
+            response.status(400).send({ error: 'Something blew up!'})
+        break
+    }
 })
